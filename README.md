@@ -34,3 +34,11 @@ E cole `delegation.md` no `~/.claude/CLAUDE.md`.
 ## Ajustes
 
 Rubricas, limiares de esforço e timeout ficam em `model-router/config.ts`. Decisões e cache vão para `~/.claude/model-router/` (`decisions.jsonl`, `cache.json`). Se o Jev falhar ou demorar mais que o timeout, a chamada segue sem alteração.
+
+## Quanto custou
+
+```sh
+bun ~/.claude/hooks/model-router/report.ts [--since 2026-10-01] [--project nome-da-pasta]
+```
+
+Lê os transcripts dos subagents em `~/.claude/projects` e soma tokens e custo por modelo e esforço, usando a tabela de preços em `report.ts`. A coluna "same tokens on opus" recalcula os mesmos tokens com o preço do Opus. Serve de referência, não de medida exata, porque o Opus usaria outra quantidade de tokens.
