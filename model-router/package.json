@@ -1,0 +1,13 @@
+{
+  "name": "model-router",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "acorn": "^8.19.0",
+    "acorn-walk": "^8.3.5"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.3",
+    "typescript": "^7.0.2"
+  }
+}
