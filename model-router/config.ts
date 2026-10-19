@@ -34,8 +34,7 @@ export const TIER_CRITERIA: Record<Tier, string> = {
     "Mechanical, fully specified work where little can go wrong: searching or reading files, listing things, renaming, applying an edit that is already decided, running a command and reporting its output, short summaries.",
   sonnet:
     "Ordinary engineering: implementing a feature or fixing a bug from a clear plan, writing tests, reviewing a diff for common bugs, moderate judgment across a few files.",
-  opus:
-    "Hard or high-stakes work: architecture and design decisions, subtle or concurrency bugs, security, ambiguous requirements, adversarial verification of tricky claims, synthesis across many sources, large refactors with many interacting parts.",
+  opus: "Hard or high-stakes work: architecture and design decisions, subtle or concurrency bugs, security, ambiguous requirements, adversarial verification of tricky claims, synthesis across many sources, large refactors with many interacting parts.",
 };
 
 export const EFFORT_CRITERIA = [

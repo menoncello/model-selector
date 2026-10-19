@@ -1,4 +1,4 @@
-import { CONFIG, EFFORT_CRITERIA, TIER_CRITERIA, type Effort, type Tier } from "./config";
+import { CONFIG, EFFORT_CRITERIA, type Effort, TIER_CRITERIA, type Tier } from "./config";
 
 export type Decision = {
   model: Tier;
@@ -49,5 +49,4 @@ export function decide(answers: Record<string, any>, id: string): Decision {
   return { model, effort, confidence: m.confidence, score, probabilities: m.probabilities };
 }
 
-export const effortFor = (model: Tier, effort: Effort) =>
-  CONFIG.skipEffortFor.includes(model) ? undefined : effort;
+export const effortFor = (model: Tier, effort: Effort) => (CONFIG.skipEffortFor.includes(model) ? undefined : effort);

@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
-// Cost of subagents by model, read from the transcripts Claude Code keeps in ~/.claude/projects.
-// Usage: bun report.ts [--since YYYY-MM-DD] [--project <substring>]
-import { Glob } from "bun";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { join } from "node:path";
+// Cost of subagents by model, read from the transcripts Claude Code keeps in ~/.claude/projects.
+// Usage: bun report.ts [--since YYYY-MM-DD] [--project <substring>]
+import { Glob } from "bun";
 
 // USD per million tokens. Source: https://platform.claude.com/docs/en/about-claude/pricing (2026-10-19).
 type Price = { input: number; write5m: number; write1h: number; read: number; output: number };
@@ -50,7 +50,15 @@ function cost(model: string, u: Usage) {
   );
 }
 
-type Row = { model: string; effort: string; agents: number; output: number; prompt: number; usd: number; asOpus: number };
+type Row = {
+  model: string;
+  effort: string;
+  agents: number;
+  output: number;
+  prompt: number;
+  usd: number;
+  asOpus: number;
+};
 const rows = new Map<string, Row>();
 let unpriced = 0;
 
@@ -67,7 +75,8 @@ for (const rel of new Glob("*/*/subagents/**/agent-*.jsonl").scanSync(root)) {
   for (const line of readFileSync(file, "utf8").split("\n")) {
     if (!line.includes('"assistant"')) continue;
     const e = JSON.parse(line);
-    if (e.type === "assistant" && e.message?.usage) byId.set(e.message.id, { model: e.message.model, usage: e.message.usage });
+    if (e.type === "assistant" && e.message?.usage)
+      byId.set(e.message.id, { model: e.message.model, usage: e.message.usage });
   }
   if (!byId.size) continue;
 

@@ -1,7 +1,7 @@
 import * as acorn from "acorn";
 import { simple } from "acorn-walk";
 import { CONFIG } from "./config";
-import { askJev, decide, effortFor, questionsFor, type Decision } from "./jev";
+import { askJev, type Decision, decide, effortFor, questionsFor } from "./jev";
 import { cached, hash, remember } from "./store";
 
 type Node = acorn.Node & Record<string, any>;
@@ -39,7 +39,7 @@ function findSites(src: string, scriptHash: string): Site[] {
       const snippet = src.slice(n.start, n.end).slice(0, CONFIG.maxSnippetChars);
       // A literal prompt describes itself; `agent(d.prompt)` only means something within this script.
       const literal = ["Literal", "TemplateLiteral"].includes(n.arguments[0].type);
-      const key = "wf:" + hash(literal ? snippet : snippet + scriptHash);
+      const key = `wf:${hash(literal ? snippet : snippet + scriptHash)}`;
       sites.push({ id: `c${sites.length}`, call: n, opts, has, snippet, key });
     },
   });
@@ -88,16 +88,21 @@ export async function routeScript(src: string) {
     if (!text) continue;
     if (!s.opts) {
       const at = s.call.arguments[0].end;
-      out = out.slice(0, at) + `, { ${text} }` + out.slice(at);
+      out = `${out.slice(0, at)}, { ${text} }${out.slice(at)}`;
     } else if (s.opts.type === "ObjectExpression") {
       // Insert first so any explicit spread later in the object still wins.
       const at = s.opts.start + 1;
-      out = out.slice(0, at) + ` ${text},` + out.slice(at);
+      out = `${out.slice(0, at)} ${text},${out.slice(at)}`;
     } else {
       const orig = out.slice(s.opts.start, s.opts.end);
-      out = out.slice(0, s.opts.start) + `{ ${text}, ...(${orig}) }` + out.slice(s.opts.end);
+      out = `${out.slice(0, s.opts.start)}{ ${text}, ...(${orig}) }${out.slice(s.opts.end)}`;
     }
-    applied.unshift({ snippet: s.snippet.slice(0, 160), label: text.replace(/model: |effort: |"/g, "").replace(", ", "/"), decision: d, cached: !pending.includes(s) });
+    applied.unshift({
+      snippet: s.snippet.slice(0, 160),
+      label: text.replace(/model: |effort: |"/g, "").replace(", ", "/"),
+      decision: d,
+      cached: !pending.includes(s),
+    });
   }
 
   parse(out); // throws if the rewrite broke the script; the caller falls back to the original

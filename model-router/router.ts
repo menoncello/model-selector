@@ -40,14 +40,24 @@ async function routeAgent(input: Record<string, any>) {
   // An explicit model from the main session wins; effort is only filled in.
   const model = input.model ?? d.model;
   const effort = input.effort ?? effortFor(model, d.effort);
-  log({ tool: "Agent", description: input.description, model, effort, jev: d, explicit: { model: input.model, effort: input.effort } });
+  log({
+    tool: "Agent",
+    description: input.description,
+    model,
+    effort,
+    jev: d,
+    explicit: { model: input.model, effort: input.effort },
+  });
 
   const updated = { ...input, model, ...(effort ? { effort } : {}) };
   emit("allow", updated, `model-router: ${model}${effort ? `/${effort}` : ""}`);
 }
 
 function resolveNamed(name: string, cwd: string) {
-  const dirs = [join(process.env.CLAUDE_PROJECT_DIR ?? cwd, ".claude", "workflows"), join(homedir(), ".claude", "workflows")];
+  const dirs = [
+    join(process.env.CLAUDE_PROJECT_DIR ?? cwd, ".claude", "workflows"),
+    join(homedir(), ".claude", "workflows"),
+  ];
   for (const dir of dirs) {
     for (const ext of [".js", ".mjs"]) {
       const p = join(dir, name + ext);
@@ -71,9 +81,7 @@ async function routeWorkflow(input: Record<string, any>, cwd: string) {
   log({ tool: "Workflow", source: input.scriptPath ?? input.name ?? "inline", applied });
 
   const { scriptPath, name, ...rest } = input;
-  const summary = applied
-    .map((a) => `${a.label}  ${a.snippet.split("\n")[0].slice(0, 80)}`)
-    .join("\n");
+  const summary = applied.map((a) => `${a.label}  ${a.snippet.split("\n")[0].slice(0, 80)}`).join("\n");
   // "ask" keeps the workflow consent prompt and shows the routing in it.
   emit("ask", { ...rest, script }, `model-router routed ${applied.length} agent() call(s):\n${summary}`);
 }

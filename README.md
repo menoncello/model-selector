@@ -42,3 +42,13 @@ bun ~/.claude/hooks/model-router/report.ts [--since 2026-10-01] [--project folde
 ```
 
 Reads the subagent transcripts in `~/.claude/projects` and sums tokens and cost by model and effort, using the price table in `report.ts`. The "same tokens on opus" column reprices the same tokens at Opus rates. Treat it as a reference point: Opus would have used a different number of tokens.
+
+## Development
+
+```sh
+cd model-router
+bun install
+bun run lint && bun run typecheck && bun test
+```
+
+Tests mock Jev, so they need no API key. CI runs the same three checks on every pull request.
