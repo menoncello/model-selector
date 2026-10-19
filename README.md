@@ -1,10 +1,10 @@
 # model-selector
 
-Hook do Claude Code que escolhe modelo (haiku, sonnet, opus) e esforço para cada subagent. Antes de o subagent rodar, o hook manda o texto da tarefa para o Jev (TypeSafe) e preenche `model` e `effort` na chamada.
+A Claude Code hook that picks the model (haiku, sonnet, opus) and effort for each subagent. Before the subagent runs, the hook sends the task text to Jev (TypeSafe) and fills in `model` and `effort` on the call.
 
-Cobre o tool `Agent` e os `agent()` dentro de workflows. Num workflow, o script é reescrito antes de rodar, e o pedido de aprovação mostra o que foi escolhido para cada chamada. Se a chamada já traz `model` ou `effort`, o hook respeita.
+It covers the `Agent` tool and `agent()` calls inside workflows. For a workflow, the script is rewritten before it runs, and the approval prompt shows what was picked for each call. If a call already sets `model` or `effort`, the hook leaves it alone.
 
-## Instalação (global)
+## Install (global)
 
 ```sh
 cd model-router && bun install
@@ -12,7 +12,7 @@ ln -sfn "$PWD" ~/.claude/hooks/model-router
 ln -sfn "$(dirname "$PWD")/agents/executor.md" ~/.claude/agents/executor.md
 ```
 
-No `~/.claude/settings.json`:
+In `~/.claude/settings.json`:
 
 ```json
 {
@@ -29,16 +29,16 @@ No `~/.claude/settings.json`:
 }
 ```
 
-E cole `delegation.md` no `~/.claude/CLAUDE.md`.
+Then paste `delegation.md` into `~/.claude/CLAUDE.md`.
 
-## Ajustes
+## Tuning
 
-Rubricas, limiares de esforço e timeout ficam em `model-router/config.ts`. Decisões e cache vão para `~/.claude/model-router/` (`decisions.jsonl`, `cache.json`). Se o Jev falhar ou demorar mais que o timeout, a chamada segue sem alteração.
+Rubrics, effort thresholds and the timeout live in `model-router/config.ts`. Decisions and the cache go to `~/.claude/model-router/` (`decisions.jsonl`, `cache.json`). If Jev fails or takes longer than the timeout, the call runs unchanged.
 
-## Quanto custou
+## What it cost
 
 ```sh
-bun ~/.claude/hooks/model-router/report.ts [--since 2026-10-01] [--project nome-da-pasta]
+bun ~/.claude/hooks/model-router/report.ts [--since 2026-10-01] [--project folder-name]
 ```
 
-Lê os transcripts dos subagents em `~/.claude/projects` e soma tokens e custo por modelo e esforço, usando a tabela de preços em `report.ts`. A coluna "same tokens on opus" recalcula os mesmos tokens com o preço do Opus. Serve de referência, não de medida exata, porque o Opus usaria outra quantidade de tokens.
+Reads the subagent transcripts in `~/.claude/projects` and sums tokens and cost by model and effort, using the price table in `report.ts`. The "same tokens on opus" column reprices the same tokens at Opus rates. Treat it as a reference point: Opus would have used a different number of tokens.
