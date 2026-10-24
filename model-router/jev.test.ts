@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { decide, effortFor, questionsFor } from "./jev";
+import { CONFIG } from "./config";
+import { capEffort, capTier, decide, effortFor, questionsFor } from "./jev";
 
 const answers = (probabilities: Record<string, number>, score: number) => ({
   t_model: { choice: Object.entries(probabilities).sort((a, b) => b[1] - a[1])[0][0], probabilities },
@@ -20,13 +21,40 @@ describe("decide", () => {
   });
 
   test.each([
-    [0.2, "low"],
+    [0.2, "none"],
+    [0.5, "low"],
     [1.0, "medium"],
     [2.0, "high"],
     [2.9, "xhigh"],
   ])("maps effort score %d to %s", (score, effort) => {
     expect(decide(answers({ haiku: 1, sonnet: 0, opus: 0 }, score), "t").effort).toBe(effort as any);
   });
+});
+
+test("maxTier caps bigger tiers and leaves smaller ones", () => {
+  CONFIG.maxTier = "sonnet";
+  try {
+    expect(capTier("opus")).toBe("sonnet");
+    expect(capTier("haiku")).toBe("haiku");
+    expect(decide(answers({ haiku: 0, sonnet: 0.2, opus: 0.8 }, 1), "t").model).toBe("sonnet");
+  } finally {
+    CONFIG.maxTier = "opus";
+  }
+});
+
+test("maxEffort caps bigger efforts and leaves smaller ones", () => {
+  CONFIG.maxEffort = "medium";
+  try {
+    expect(capEffort("xhigh")).toBe("medium");
+    expect(capEffort("low")).toBe("low");
+    expect(decide(answers({ haiku: 1, sonnet: 0, opus: 0 }, 2.9), "t").effort).toBe("medium");
+  } finally {
+    CONFIG.maxEffort = "max";
+  }
+});
+
+test("effort none is not sent", () => {
+  expect(effortFor("sonnet", "none")).toBeUndefined();
 });
 
 test("effortFor passes effort through for every tier by default", () => {

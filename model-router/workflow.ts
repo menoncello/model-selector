@@ -1,7 +1,7 @@
 import * as acorn from "acorn";
 import { simple } from "acorn-walk";
 import { CONFIG } from "./config";
-import { askJev, type Decision, decide, effortFor, questionsFor } from "./jev";
+import { askJev, capEffort, capTier, type Decision, decide, effortFor, questionsFor } from "./jev";
 import { cached, hash, remember } from "./store";
 
 type Node = acorn.Node & Record<string, any>;
@@ -50,7 +50,7 @@ function findSites(src: string, scriptHash: string): Site[] {
 function optsText(d: Decision, has: Set<string>) {
   const parts: string[] = [];
   if (!has.has("model")) parts.push(`model: ${JSON.stringify(d.model)}`);
-  const effort = has.has("model") ? d.effort : effortFor(d.model, d.effort);
+  const effort = has.has("model") ? (d.effort === "none" ? undefined : d.effort) : effortFor(d.model, d.effort);
   if (effort && !has.has("effort")) parts.push(`effort: ${JSON.stringify(effort)}`);
   return parts.join(", ");
 }
@@ -60,7 +60,7 @@ export async function routeScript(src: string) {
   const decisions = new Map<string, Decision>();
   const pending = sites.filter((s) => {
     const hit = cached(s.key);
-    if (hit) decisions.set(s.id, hit);
+    if (hit) decisions.set(s.id, { ...hit, model: capTier(hit.model), effort: capEffort(hit.effort) });
     return !hit;
   });
 
