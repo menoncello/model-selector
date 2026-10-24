@@ -9,6 +9,13 @@ export type Decision = {
 };
 
 const TIERS: Tier[] = ["haiku", "sonnet", "opus"];
+const EFFORTS: Effort[] = ["none", "low", "medium", "high", "xhigh", "max"];
+
+export const capTier = (t: Tier): Tier =>
+  TIERS.indexOf(t) > TIERS.indexOf(CONFIG.maxTier) && TIERS.includes(CONFIG.maxTier) ? CONFIG.maxTier : t;
+
+export const capEffort = (e: Effort): Effort =>
+  EFFORTS.indexOf(e) > EFFORTS.indexOf(CONFIG.maxEffort) && EFFORTS.includes(CONFIG.maxEffort) ? CONFIG.maxEffort : e;
 
 // `ref` is a backticked path into the request state, e.g. `task` or `agent_calls.c0`.
 export function questionsFor(id: string, ref: string) {
@@ -46,7 +53,14 @@ export function decide(answers: Record<string, any>, id: string): Decision {
   const model = [...TIERS].reverse().find((t) => p[t] >= CONFIG.minTierProbability) ?? (m.choice as Tier);
   const score = e.score as number;
   const effort = CONFIG.effortThresholds.find(([max]) => score < max)![1];
-  return { model, effort, confidence: m.confidence, score, probabilities: m.probabilities };
+  return {
+    model: capTier(model),
+    effort: capEffort(effort),
+    confidence: m.confidence,
+    score,
+    probabilities: m.probabilities,
+  };
 }
 
-export const effortFor = (model: Tier, effort: Effort) => (CONFIG.skipEffortFor.includes(model) ? undefined : effort);
+export const effortFor = (model: Tier, effort: Effort) =>
+  CONFIG.skipEffortFor.includes(model) || effort === "none" ? undefined : effort;

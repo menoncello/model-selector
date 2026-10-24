@@ -35,6 +35,15 @@ Then paste `delegation.md` into `~/.claude/CLAUDE.md`.
 
 Rubrics, effort thresholds and the timeout live in `model-router/config.ts`. Decisions and the cache go to `~/.claude/model-router/` (`decisions.jsonl`, `cache.json`). If Jev fails or takes longer than the timeout, the call runs unchanged.
 
+## Limits
+
+Set these in the `env` block of `~/.claude/settings.json`:
+
+- `MODEL_ROUTER_MAX_TIER` (`haiku`, `sonnet`, `opus`): any bigger model the hook picks becomes this one. Default `opus`, no cap.
+- `MODEL_ROUTER_MAX_EFFORT` (`none`, `low`, `medium`, `high`, `xhigh`, `max`): same for reasoning effort. Default `max`, no cap.
+
+Effort `none` means the hook sends no effort and the subagent runs at its default. Limits only apply to what the hook picks; a call that sets `model` or `effort` itself is left alone. An invalid value is ignored.
+
 ## What it cost
 
 ```sh

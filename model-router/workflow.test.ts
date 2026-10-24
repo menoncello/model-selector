@@ -23,7 +23,7 @@ mock.module("./jev", () => ({
             choice: cheap ? "haiku" : "opus",
             probabilities: cheap ? { haiku: 1, sonnet: 0, opus: 0 } : { haiku: 0, sonnet: 0, opus: 1 },
           }
-        : { score: cheap ? 0.1 : 2 };
+        : { score: cheap ? 0.5 : 2 };
     }
     return answers;
   },

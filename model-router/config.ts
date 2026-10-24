@@ -1,5 +1,6 @@
 export type Tier = "haiku" | "sonnet" | "opus";
-export type Effort = "low" | "medium" | "high" | "xhigh" | "max";
+// "none" means the hook sends no effort and the subagent runs at its default.
+export type Effort = "none" | "low" | "medium" | "high" | "xhigh" | "max";
 
 export const CONFIG = {
   endpoint: "https://api.typesafe.ai/v1/systemone",
@@ -12,11 +13,18 @@ export const CONFIG = {
 
   // Jev's effort Score runs 0..3. Each entry is [upper bound (exclusive), effort].
   effortThresholds: [
+    [0.25, "none"],
     [0.75, "low"],
     [1.5, "medium"],
     [2.3, "high"],
     [Infinity, "xhigh"],
   ] as [number, Effort][],
+
+  // Ceiling: any tier above this becomes this tier. Env MODEL_ROUTER_MAX_TIER overrides; "opus" means no cap.
+  maxTier: (process.env.MODEL_ROUTER_MAX_TIER ?? "opus") as Tier,
+
+  // Ceiling on reasoning: any effort above this becomes this effort. Env MODEL_ROUTER_MAX_EFFORT overrides; "max" means no cap.
+  maxEffort: (process.env.MODEL_ROUTER_MAX_EFFORT ?? "max") as Effort,
 
   // Don't send effort to these tiers. Haiku, Sonnet and Opus 5.5 accept every level.
   skipEffortFor: [] as Tier[],
